@@ -1,3 +1,35 @@
+<?php 
+include('../libs/db.php');
+if (isset($_POST['submit'])){
+	$query = $db->prepare("SELECT * FORM user WHERE username = :username AND password = :password");
+	$query ->execute([
+		'username'=>$_POST['username'],
+		'password'=>md5($_POST['password']),
+	]);
+	//echo "เย้";
+	if($query->rowCount()>0){
+		echo "เย้";
+		$data = $query->fetch(PDO::FETCH_OBJ);
+		if($data->status==1){
+			$_SESSION['username'] = [
+				'uid'=>$data->uid,
+				'username'=>$data->username,
+				'name'=>$data->name,
+				'email'=>$data->email,
+				'level_id'=>$data->level_id
+			];
+			header("backend/index.php");
+		}else{
+			echo "<script>
+			alert('ผู้ใช้นี้ยังไม่ได้รับอนุญาตให้ใช้งาน !');
+			</script>";
+		}
+	}else{
+		# ล็อกอินไม่ผ่าน
+		echo "ล็อกอินไม่ผ่าน";
+	}
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,13 +60,13 @@
   <div class="login-box-body">
     <p class="login-box-msg">Sign in to start your session</p>
 
-    <form action="../../index2.html" method="post">
+    <form action="" method="post">
       <div class="form-group has-feedback">
-        <input type="email" class="form-control" placeholder="Email">
+        <input type="text" name="username" class="form-control" placeholder="Email">
         <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
       </div>
       <div class="form-group has-feedback">
-        <input type="password" class="form-control" placeholder="Password">
+        <input type="password" name="password" class="form-control" placeholder="Password">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
       <div class="row">
@@ -47,7 +79,7 @@
         </div>
         <!-- /.col -->
         <div class="col-xs-4">
-          <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+          <button type="submit" name="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
         </div>
         <!-- /.col -->
       </div>
